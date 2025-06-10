@@ -1,19 +1,12 @@
-const Knex = require("knex");
-const knexConfig = require("../knexfile");
-const { Model } = require("objection");
+const { Pool } = require("pg");
+const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 
-//Knex Configuration
-const knex = Knex(knexConfig.development);
-
-const initializeDB = function () {
-
-	//Initialize knex Model
-	Model.knex(knex);
-
+module.exports = {
+  initializeDB: () => {
+    pool
+      .connect()
+      .then(() => console.log("Connected to PostgreSQL"))
+      .catch((err) => console.error("DB Connection Error", err));
+  },
+  query: (text, params) => pool.query(text, params),
 };
-
-const destroyKnex = function () {
-	knex.destroy();
-};
-
-module.exports = { initializeDB, destroyKnex };
